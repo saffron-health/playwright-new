@@ -4,12 +4,36 @@
 
 ## Fork Deployment
 
-`npm version patch`
-@sh_michael/playwright-core
-@sh_michael/playwright
-@sh_michael/playwright-test
+To publish all packages under the `@sh_michael` scope with the `latest` tag:
 
-<!-- npm publish --access=public --tag=latest -->
+1. **Increment version**:
+
+   ```bash
+   npm version patch    # or 'minor' or 'major' as needed
+   ```
+
+2. **Publish all packages to latest**:
+   ```bash
+   bash utils/publish_all_packages.sh --release
+   ```
+
+This will publish all packages including:
+
+- `@sh_michael/playwright-core` (latest)
+- `@sh_michael/playwright` (latest)
+- `@sh_michael/playwright-test` (latest)
+- All other scoped packages under `@sh_michael`
+
+**Prerequisites:**
+
+- Ensure you're logged into npm: `npm whoami` (should show `sh_michael`)
+- The publish script has been modified to skip git status checks for releases
+
+**Note:** If you need to manually set a specific version (e.g., to remove pre-release suffixes), use:
+
+```bash
+node utils/workspace.js --set-version X.Y.Z
+```
 
 ## [Documentation](https://playwright.dev) | [API reference](https://playwright.dev/docs/api/class-playwright)
 

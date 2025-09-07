@@ -1,10 +1,10 @@
 {
-  "name": "@playwright/test",
-  "version": "1.56.0-next",
+  "name": "@sh_michael/playwright-test",
+  "version": "1.56.0",
   "description": "A high-level API to automate web browsers",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/microsoft/playwright.git"
+    "url": "git+https://github.com/saffron-health/playwright-new.git"
   },
   "homepage": "https://playwright.dev",
   "engines": {
@@ -30,6 +30,6 @@
   },
   "scripts": {},
   "dependencies": {
-    "playwright": "1.56.0-next"
+    "@sh_michael/playwright": "1.56.0"
   }
 }
