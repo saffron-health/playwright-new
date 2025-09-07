@@ -564,6 +564,53 @@ export class Recorder extends EventEmitter<RecorderEventMap> implements Instrume
     ++this._lastDialogOrdinal;
     this._signalProcessor.signal(pageAlias, page.mainFrame(), { name: 'dialog', dialogAlias: this._lastDialogOrdinal ? String(this._lastDialogOrdinal) : '' });
   }
+
+  // Helper methods for executable actions
+  pageAliases(): Map<Page, string> {
+    return this._pageAliases;
+  }
+
+  frameForSelector(selector: string): Frame {
+    // For now, return the main frame of the first page
+    // TODO: Implement proper selector frame resolution
+    const firstPage = this._pageAliases.keys().next().value;
+    if (!firstPage)
+      throw new Error('No pages available');
+    return firstPage.mainFrame();
+  }
+
+  pushTemporaryCallLog(actionInContext: any): string {
+    // Generate a unique ID for this temporary call log entry
+    const id = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const callLog: CallLog = {
+      id,
+      title: `${actionInContext.action?.name || 'action'}`,
+      messages: [],
+      status: 'in-progress',
+      params: {
+        selector: actionInContext.action?.selector
+      }
+    };
+    
+    this._callLogs.push(callLog);
+    this.emit(RecorderEvent.CallLogsUpdated, this._callLogs);
+    return id;
+  }
+
+  updateTemporaryCallLog(id: string, status: 'done' | 'error', result?: any) {
+    const logIndex = this._callLogs.findIndex(log => log.id === id);
+    if (logIndex !== -1) {
+      this._callLogs[logIndex].status = status;
+      if (status === 'error') {
+        this._callLogs[logIndex].error = String(result);
+      } else if (result !== undefined) {
+        this._callLogs[logIndex].messages.push(`Result: ${JSON.stringify(result)}`);
+      }
+      this.emit(RecorderEvent.CallLogsUpdated, this._callLogs);
+    }
+  }
+
 }
 
 function isScreenshotCommand(metadata: CallMetadata) {

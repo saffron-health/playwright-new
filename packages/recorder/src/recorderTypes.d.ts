@@ -43,8 +43,27 @@ export type EventData = {
     | 'pause'
     | 'setMode'
     | 'highlightRequested'
-    | 'languageChanged';
+    | 'languageChanged'
+    | 'performAction'
+    | 'performExtraction'
+    | 'executeArbitraryCode';
   params: any;
+};
+
+export type PerformActionParams = {
+  locator: string;
+  action: 'click' | 'dblclick' | 'fill' | 'press' | 'check' | 'uncheck' | 'selectOption' | 'hover' | 'scroll';
+  args?: any[];
+};
+
+export type PerformExtractionParams = {
+  locator: string;
+  extraction: 'innerText' | 'textContent' | 'getAttribute' | 'isVisible' | 'isEnabled' | 'isChecked' | 'count' | 'boundingBox';
+  args?: any[];
+};
+
+export type ExecuteArbitraryCodeParams = {
+  code: string;
 };
 
 export type OverlayState = {
@@ -107,6 +126,7 @@ declare global {
     playwrightSetOverlayVisible: (visible: boolean) => void;
     playwrightUpdateLogs: (callLogs: CallLog[]) => void;
     playwrightElementPicked: (elementInfo: ElementInfo, userGesture?: boolean) => void;
+    playwrightExtractionResult: (result: any, extraction: string) => void;
     playwrightSourcesEchoForTest: Source[];
     dispatch(data: any): Promise<void>;
   }
