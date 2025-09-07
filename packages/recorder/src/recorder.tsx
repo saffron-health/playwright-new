@@ -67,13 +67,14 @@ export const Recorder: React.FC<RecorderProps> = ({
   }, [sources, selectedFileId]);
 
   const [locator, setLocator] = React.useState('');
+  const [absoluteXPath, setAbsoluteXPath] = React.useState('');
+  const [cssSelector, setCssSelector] = React.useState('');
   const [executionResult, setExecutionResult] = React.useState<{result: any, type: 'action' | 'extraction', timestamp: number} | null>(null);
   const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
-  
+
   window.playwrightExtractionResult = (result: any, extraction: string) => {
     const isExtraction = extraction === 'extraction';
-    const resultType = isExtraction ? 'extraction' : 'action';
-    
+
     if (isExtraction) {
       setExecutionResult({ result, type: 'extraction', timestamp: Date.now() });
       // Show blue toast for extraction results
@@ -86,39 +87,39 @@ export const Recorder: React.FC<RecorderProps> = ({
   };
 
   const runOperation = async () => {
-    if (!locator.trim()) return;
-    
+    if (!locator.trim())
+      return;
+
     // Detect if this is an extraction (returns a value) or action (performs an action)
-    const isExtraction = /\.(innerText|textContent|isVisible|isEnabled|isChecked|getAttribute|count|boundingBox)\s*\(\s*\)?\s*$/.test(locator.trim()) || 
+    const isExtraction = /\.(innerText|textContent|isVisible|isEnabled|isChecked|getAttribute|count|boundingBox)\s*\(\s*\)?\s*$/.test(locator.trim()) ||
                          /^page\.(title|url)\s*\(\s*\)?\s*$/.test(locator.trim());
-    
+
     // Clear previous result if switching between action and extraction
-    if (executionResult && 
-        ((executionResult.type === 'action' && isExtraction) || 
-         (executionResult.type === 'extraction' && !isExtraction))) {
+    if (executionResult &&
+        ((executionResult.type === 'action' && isExtraction) ||
+         (executionResult.type === 'extraction' && !isExtraction)))
       setExecutionResult(null);
-    }
-    
+
+
     // For actions (non-extraction operations), clear the result immediately
-    if (!isExtraction) {
+    if (!isExtraction)
       setExecutionResult(null);
-    }
-    
+
+
     try {
       await window.dispatch({
         event: 'executeArbitraryCode',
-        params: { 
+        params: {
           code: locator
         }
       });
-      
+
       // For actions, show a success state briefly
-      if (!isExtraction) {
+      if (!isExtraction)
         showSuccess('Action executed successfully');
-      }
-      
+
+
     } catch (error) {
-      console.error('Operation failed:', error);
       showError(`Operation failed: ${error}`);
       // Clear result on error
       setExecutionResult(null);
@@ -129,8 +130,13 @@ export const Recorder: React.FC<RecorderProps> = ({
     const language = source.language;
     setLocator(asLocator(language, elementInfo.selector));
     setAriaSnapshot(elementInfo.ariaSnapshot);
+
+    // Set XPath and CSS selectors - using field names from existing implementation  
+    setAbsoluteXPath(elementInfo.xpath || '');
+    setCssSelector(elementInfo.css || '');
+
     setAriaSnapshotErrors([]);
-    if (userGesture && selectedTab !== 'locator' && selectedTab !== 'aria')
+    if (userGesture && selectedTab !== 'locator' && selectedTab !== 'aria' && selectedTab !== 'xpath' && selectedTab !== 'css')
       setSelectedTab('locator');
 
     if (mode === 'inspecting' && selectedTab === 'aria') {
@@ -279,20 +285,42 @@ export const Recorder: React.FC<RecorderProps> = ({
       sidebarSize={200}
       main={<CodeMirrorWrapper text={source.text} highlighter={source.language} highlight={source.highlight} revealLine={source.revealLine} readOnly={true} lineNumbers={true} />}
       sidebar={<TabbedPane
-        rightToolbar={selectedTab === 'locator' || selectedTab === 'aria' ? [<ToolbarButton key={1} icon='files' title='Copy' onClick={() => copy((selectedTab === 'locator' ? locator : ariaSnapshot) || '')} />] : []}
+        rightToolbar={
+          selectedTab === 'locator' || selectedTab === 'aria' || selectedTab === 'xpath' || selectedTab === 'css'
+            ? [
+              <ToolbarButton
+                key={1}
+                icon='files'
+                title='Copy'
+                onClick={() => {
+                  let textToCopy = '';
+                  if (selectedTab === 'locator')
+                    textToCopy = locator;
+                  else if (selectedTab === 'aria')
+                    textToCopy = ariaSnapshot || '';
+                  else if (selectedTab === 'xpath')
+                    textToCopy = absoluteXPath;
+                  else if (selectedTab === 'css')
+                    textToCopy = cssSelector;
+                  copy(textToCopy || '');
+                }}
+              />,
+            ]
+            : []
+        }
         tabs={[
           {
             id: 'locator',
             title: 'Locator',
             render: () => (
-              <div className="locator-tab-container">
-                <div className="locator-editor-container">
-                  <CodeMirrorWrapper 
-                    text={locator} 
-                    placeholder='Type Playwright code to execute' 
-                    highlighter={source.language} 
-                    focusOnChange={true} 
-                    onChange={onEditorChange} 
+              <div className='locator-tab-container'>
+                <div className='locator-editor-container'>
+                  <CodeMirrorWrapper
+                    text={locator}
+                    placeholder='Type Playwright code to execute'
+                    highlighter={source.language}
+                    focusOnChange={true}
+                    onChange={onEditorChange}
                     wrapLines={true}
                     onKeyDown={(key, event) => {
                       if (key === 'Enter' && !event.shiftKey) {
@@ -302,21 +330,21 @@ export const Recorder: React.FC<RecorderProps> = ({
                       return false; // Let CodeMirror handle the event
                     }}
                   />
-                  <div className="action-bar">
-                    <ToolbarButton 
-                      icon='play' 
-                      title='Run Code' 
+                  <div className='action-bar'>
+                    <ToolbarButton
+                      icon='play'
+                      title='Run Code'
                       onClick={runOperation}
                       disabled={!locator.trim()}
                     />
                   </div>
                 </div>
                 {executionResult && (
-                  <div className="execution-result-panel">
-                    <div className="execution-result-header">
-                      Result: 
+                  <div className='execution-result-panel'>
+                    <div className='execution-result-header'>
+                      Result:
                     </div>
-                    <div className="execution-result-value">
+                    <div className='execution-result-value'>
                       {JSON.stringify(executionResult.result, null, 2)}
                     </div>
                   </div>
@@ -333,6 +361,53 @@ export const Recorder: React.FC<RecorderProps> = ({
             id: 'aria',
             title: 'Aria',
             render: () => <CodeMirrorWrapper text={ariaSnapshot || ''} placeholder='Type aria template to match' highlighter={'yaml'} onChange={onAriaEditorChange} highlight={ariaSnapshotErrors} wrapLines={true} />
+          },
+          {
+            id: 'xpath',
+            title: 'XPath',
+            render: () => (
+              <div className='selector-tab-container'>
+                <div className='selector-display'>
+                  <CodeMirrorWrapper
+                    text={absoluteXPath}
+                    highlighter='html'
+                    readOnly={true}
+                    wrapLines={true}
+                  />
+                </div>
+                <div className='selector-info'>
+                  <span className='selector-type'>Absolute XPath</span>
+                  <span className='selector-description'>
+                    Complete path from document root to element
+                  </span>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: 'css',
+            title: 'CSS',
+            render: () => (
+              <div className='selector-tab-container'>
+                <div className='selector-display'>
+                  <CodeMirrorWrapper
+                    text={cssSelector}
+                    highlighter='css'
+                    readOnly={true}
+                    wrapLines={true}
+                  />
+                </div>
+                <div className='selector-info'>
+                  <span className='selector-type'>CSS Selector</span>
+                  <span className='selector-description'>
+                    {cssSelector.startsWith('#')
+                      ? 'ID-based selector path'
+                      : 'Absolute CSS selector path'
+                    }
+                  </span>
+                </div>
+              </div>
+            )
           },
         ]}
         selectedTab={selectedTab}

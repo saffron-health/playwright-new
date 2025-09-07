@@ -33,6 +33,8 @@ export type Mode =
 export type ElementInfo = {
   selector: string;
   ariaSnapshot: string;
+  xpath?: string;
+  css?: string;
 };
 
 export type EventData = {

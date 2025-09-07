@@ -279,3 +279,37 @@ body.dark-mode .recorder .toolbar-button.toggled.circle-large-filled {
   margin-right: 5px;
   flex-shrink: 0;
 }
+
+.selector-tab-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px;
+}
+
+.selector-display {
+  flex: 1;
+  margin-bottom: 8px;
+  border: 1px solid var(--vscode-input-border);
+  border-radius: 3px;
+}
+
+.selector-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: var(--vscode-editor-inactiveSelectionBackground);
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.selector-type {
+  font-weight: 600;
+  color: var(--vscode-textPreformat-foreground);
+}
+
+.selector-description {
+  color: var(--vscode-descriptionForeground);
+  font-style: italic;
+}

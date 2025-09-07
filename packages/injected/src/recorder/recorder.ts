@@ -174,7 +174,18 @@ class InspectTool implements RecorderTool {
       this._recorder.setMode('recording');
       this._recorder.overlay?.flashToolSucceeded('assertingVisibility');
     } else {
-      this._recorder.elementPicked(selector, model);
+      const element = model.elements[0];
+      const xpath = this._generateAbsoluteXPath(element);
+      const css = this._generateCssSelector(element);
+
+      const enhancedElementInfo: ElementInfo = {
+        selector,
+        ariaSnapshot: this._recorder.injectedScript.ariaSnapshot(element, { mode: 'expect' }),
+        xpath,
+        css,
+      };
+
+      this._recorder.elementPicked(enhancedElementInfo);
     }
   }
 
@@ -182,6 +193,141 @@ class InspectTool implements RecorderTool {
     this._hoveredElement = null;
     this._hoveredModel = null;
     this._recorder.updateHighlight(null, userGesture);
+  }
+
+  private _generateAbsoluteXPath(element: Element): string {
+    try {
+      if (element === this._recorder.document.documentElement)
+        return '/html';
+
+      const parts: string[] = [];
+      let currentElement: Element | null = element;
+
+      while (currentElement && currentElement !== this._recorder.document.documentElement) {
+        const tagName = currentElement.tagName.toLowerCase();
+        const siblings = Array.from(currentElement.parentElement?.children || [])
+            .filter(sibling => sibling.tagName.toLowerCase() === tagName);
+
+        if (siblings.length === 1) {
+          parts.unshift(tagName);
+        } else {
+          const index = siblings.indexOf(currentElement) + 1;
+          parts.unshift(`${tagName}[${index}]`);
+        }
+
+        currentElement = currentElement.parentElement;
+      }
+
+      return `/html/${parts.join('/')}`;
+    } catch (error) {
+      return '// Error generating XPath';
+    }
+  }
+
+  private _generateCssSelector(element: Element): string {
+    try {
+      // Strategy: Find nearest ancestor with ID, then build path down
+
+      // 1. Find the nearest ancestor (or self) with an ID
+      let idAncestor: Element | null = null;
+      let currentElement: Element | null = element;
+
+      while (currentElement) {
+        if (currentElement.id) {
+          idAncestor = currentElement;
+          break;
+        }
+        currentElement = currentElement.parentElement;
+      }
+
+      // 2. Build path from ID ancestor down to target
+      if (idAncestor) {
+        if (idAncestor === element) {
+          // Element itself has an ID
+          return `#${this._escapeCssId(element.id)}`;
+        }
+
+        // Build path from ID ancestor to target
+        const pathParts: string[] = [`#${this._escapeCssId(idAncestor.id)}`];
+        const pathFromId = this._buildCssPathBetween(idAncestor, element);
+
+        return pathFromId ? `${pathParts[0]} ${pathFromId}` : pathParts[0];
+      }
+
+      // 3. Fallback: Generate absolute CSS path
+      return this._generateAbsoluteCssPath(element);
+    } catch (error) {
+      return '/* Error generating CSS selector */';
+    }
+  }
+
+  private _buildCssPathBetween(ancestor: Element, descendant: Element): string {
+    if (ancestor === descendant)
+      return '';
+
+    const parts: string[] = [];
+    let current: Element | null = descendant;
+
+    while (current && current !== ancestor) {
+      const tagName = current.tagName.toLowerCase();
+      const parent: Element | null = current.parentElement;
+
+      if (!parent)
+        break;
+
+      // Find siblings with same tag name
+      const siblings = Array.from(parent.children)
+          .filter((sibling: Element) => sibling.tagName.toLowerCase() === tagName);
+
+      let selector = tagName;
+
+      // Add classes if available
+      if (current.classList.length > 0)
+        selector += '.' + Array.from(current.classList).join('.');
+
+      // Add nth-child if needed for uniqueness
+      if (siblings.length > 1) {
+        const index = siblings.indexOf(current) + 1;
+        selector += `:nth-child(${index})`;
+      }
+
+      parts.unshift(selector);
+      current = parent;
+    }
+
+    return parts.join(' > ');
+  }
+
+  private _generateAbsoluteCssPath(element: Element): string {
+    const parts: string[] = [];
+    let current: Element | null = element;
+
+    while (current && current !== this._recorder.document.documentElement) {
+      const tagName = current.tagName.toLowerCase();
+      const parent: Element | null = current.parentElement;
+
+      if (!parent)
+        break;
+
+      const siblings = Array.from(parent.children)
+          .filter((sibling: Element) => sibling.tagName.toLowerCase() === tagName);
+
+      let selector = tagName;
+
+      if (siblings.length > 1) {
+        const index = siblings.indexOf(current) + 1;
+        selector += `:nth-child(${index})`;
+      }
+
+      parts.unshift(selector);
+      current = parent;
+    }
+
+    return parts.join(' > ');
+  }
+
+  private _escapeCssId(id: string): string {
+    return id.replace(/[^a-zA-Z0-9_-]/g, '\\$&');
   }
 }
 
@@ -1605,9 +1751,8 @@ export class Recorder {
     void this._delegate.setOverlayState?.(state);
   }
 
-  elementPicked(selector: string, model: HighlightModel) {
-    const ariaSnapshot = this.injectedScript.ariaSnapshot(model.elements[0], { mode: 'expect' });
-    void this._delegate.elementPicked?.({ selector, ariaSnapshot });
+  elementPicked(elementInfo: ElementInfo) {
+    void this._delegate.elementPicked?.(elementInfo);
   }
 }
 
