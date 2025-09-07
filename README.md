@@ -2,15 +2,48 @@
 
 [![npm version](https://img.shields.io/npm/v/playwright.svg)](https://www.npmjs.com/package/playwright) <!-- GEN:chromium-version-badge -->[![Chromium version](https://img.shields.io/badge/chromium-140.0.7339.41-blue.svg?logo=google-chrome)](https://www.chromium.org/Home)<!-- GEN:stop --> <!-- GEN:firefox-version-badge -->[![Firefox version](https://img.shields.io/badge/firefox-141.0-blue.svg?logo=firefoxbrowser)](https://www.mozilla.org/en-US/firefox/new/)<!-- GEN:stop --> <!-- GEN:webkit-version-badge -->[![WebKit version](https://img.shields.io/badge/webkit-26.0-blue.svg?logo=safari)](https://webkit.org/)<!-- GEN:stop --> [![Join Discord](https://img.shields.io/badge/join-discord-informational)](https://aka.ms/playwright/discord)
 
+## Fork Deployment
+
+To publish all packages under the `@sh_michael` scope with the `latest` tag:
+
+1. **Increment version**:
+
+   ```bash
+   npm version patch    # or 'minor' or 'major' as needed
+   ```
+
+2. **Publish all packages to latest**:
+   ```bash
+   bash utils/publish_all_packages.sh --release
+   ```
+
+This will publish all packages including:
+
+- `@sh_michael/playwright-core` (latest)
+- `@sh_michael/playwright` (latest)
+- `@sh_michael/playwright-test` (latest)
+- All other scoped packages under `@sh_michael`
+
+**Prerequisites:**
+
+- Ensure you're logged into npm: `npm whoami` (should show `sh_michael`)
+- The publish script has been modified to skip git status checks for releases
+
+**Note:** If you need to manually set a specific version (e.g., to remove pre-release suffixes), use:
+
+```bash
+node utils/workspace.js --set-version X.Y.Z
+```
+
 ## [Documentation](https://playwright.dev) | [API reference](https://playwright.dev/docs/api/class-playwright)
 
 Playwright is a framework for Web Testing and Automation. It allows testing [Chromium](https://www.chromium.org/Home), [Firefox](https://www.mozilla.org/en-US/firefox/new/) and [WebKit](https://webkit.org/) with a single API. Playwright is built to enable cross-browser web automation that is **ever-green**, **capable**, **reliable** and **fast**.
 
-|          | Linux | macOS | Windows |
-|   :---   | :---: | :---: | :---:   |
+|                                                                      |       Linux        |       macOS        |      Windows       |
+| :------------------------------------------------------------------- | :----------------: | :----------------: | :----------------: |
 | Chromium <!-- GEN:chromium-version -->140.0.7339.41<!-- GEN:stop --> | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| WebKit <!-- GEN:webkit-version -->26.0<!-- GEN:stop --> | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| Firefox <!-- GEN:firefox-version -->141.0<!-- GEN:stop --> | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| WebKit <!-- GEN:webkit-version -->26.0<!-- GEN:stop -->              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Firefox <!-- GEN:firefox-version -->141.0<!-- GEN:stop -->           | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 Headless execution is supported for all browsers on all platforms. Check out [system requirements](https://playwright.dev/docs/intro#system-requirements) for details.
 
@@ -45,8 +78,8 @@ npx playwright install
 
 You can optionally install only selected browsers, see [install browsers](https://playwright.dev/docs/cli#install-browsers) for more details. Or you can install no browsers at all and use existing [browser channels](https://playwright.dev/docs/browsers).
 
-* [Getting started](https://playwright.dev/docs/intro)
-* [API reference](https://playwright.dev/docs/api/class-playwright)
+- [Getting started](https://playwright.dev/docs/intro)
+- [API reference](https://playwright.dev/docs/api/class-playwright)
 
 ## Capabilities
 
@@ -162,7 +195,7 @@ test('Intercept network requests', async ({ page }) => {
 
 ## Resources
 
-* [Documentation](https://playwright.dev)
-* [API reference](https://playwright.dev/docs/api/class-playwright/)
-* [Contribution guide](CONTRIBUTING.md)
-* [Changelog](https://github.com/microsoft/playwright/releases)
+- [Documentation](https://playwright.dev)
+- [API reference](https://playwright.dev/docs/api/class-playwright/)
+- [Contribution guide](CONTRIBUTING.md)
+- [Changelog](https://github.com/microsoft/playwright/releases)

@@ -143,79 +143,79 @@ const ROOT_PATH = path.join(__dirname, '..');
 const LICENCE_FILES = ['NOTICE', 'LICENSE'];
 const workspace = new Workspace(ROOT_PATH, [
   new PWPackage({
-    name: 'playwright',
+    name: '@sh_michael/playwright',
     path: path.join(ROOT_PATH, 'packages', 'playwright'),
     // We copy README.md additionally for playwright so that it looks nice on NPM.
     files: [...LICENCE_FILES, 'README.md'],
   }),
   new PWPackage({
-    name: 'playwright-core',
+    name: '@sh_michael/playwright-core',
     path: path.join(ROOT_PATH, 'packages', 'playwright-core'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: '@playwright/test',
+    name: '@sh_michael/playwright-test',
     path: path.join(ROOT_PATH, 'packages', 'playwright-test'),
-    // We copy README.md additionally for @playwright/test so that it looks nice on NPM.
+    // We copy README.md additionally for @sh_michael/playwright-test so that it looks nice on NPM.
     files: [...LICENCE_FILES, 'README.md'],
   }),
   new PWPackage({
-    name: 'playwright-webkit',
+    name: '@sh_michael/playwright-webkit',
     path: path.join(ROOT_PATH, 'packages', 'playwright-webkit'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: 'playwright-firefox',
+    name: '@sh_michael/playwright-firefox',
     path: path.join(ROOT_PATH, 'packages', 'playwright-firefox'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: 'playwright-chromium',
+    name: '@sh_michael/playwright-chromium',
     path: path.join(ROOT_PATH, 'packages', 'playwright-chromium'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: '@playwright/client',
+    name: '@sh_michael/client',
     path: path.join(ROOT_PATH, 'packages', 'playwright-client'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: '@playwright/browser-webkit',
+    name: '@sh_michael/browser-webkit',
     path: path.join(ROOT_PATH, 'packages', 'playwright-browser-webkit'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: '@playwright/browser-firefox',
+    name: '@sh_michael/browser-firefox',
     path: path.join(ROOT_PATH, 'packages', 'playwright-browser-firefox'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: '@playwright/browser-chromium',
+    name: '@sh_michael/browser-chromium',
     path: path.join(ROOT_PATH, 'packages', 'playwright-browser-chromium'),
     files: LICENCE_FILES,
   }),
   new PWPackage({
-    name: '@playwright/experimental-ct-core',
+    name: '@sh_michael/experimental-ct-core',
     path: path.join(ROOT_PATH, 'packages', 'playwright-ct-core'),
     files: ['LICENSE'],
   }),
   new PWPackage({
-    name: '@playwright/experimental-ct-react',
+    name: '@sh_michael/experimental-ct-react',
     path: path.join(ROOT_PATH, 'packages', 'playwright-ct-react'),
     files: ['LICENSE'],
   }),
   new PWPackage({
-    name: '@playwright/experimental-ct-react17',
+    name: '@sh_michael/experimental-ct-react17',
     path: path.join(ROOT_PATH, 'packages', 'playwright-ct-react17'),
     files: ['LICENSE'],
   }),
   new PWPackage({
-    name: '@playwright/experimental-ct-svelte',
+    name: '@sh_michael/experimental-ct-svelte',
     path: path.join(ROOT_PATH, 'packages', 'playwright-ct-svelte'),
     files: ['LICENSE'],
   }),
   new PWPackage({
-    name: '@playwright/experimental-ct-vue',
+    name: '@sh_michael/experimental-ct-vue',
     path: path.join(ROOT_PATH, 'packages', 'playwright-ct-vue'),
     files: ['LICENSE'],
   }),

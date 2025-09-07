@@ -1,10 +1,10 @@
 {
-  "name": "@playwright/browser-webkit",
-  "version": "1.56.0-next",
+  "name": "@sh_michael/browser-webkit",
+  "version": "1.56.0",
   "description": "Playwright package that automatically installs WebKit",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/microsoft/playwright.git"
+    "url": "git+https://github.com/saffron-health/playwright-new.git"
   },
   "homepage": "https://playwright.dev",
   "engines": {
@@ -27,6 +27,6 @@
     "install": "node install.js"
   },
   "dependencies": {
-    "playwright-core": "1.56.0-next"
+    "@sh_michael/playwright-core": "1.56.0"
   }
 }

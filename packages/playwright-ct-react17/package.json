@@ -1,10 +1,10 @@
 {
-  "name": "@playwright/experimental-ct-react17",
-  "version": "1.56.0-next",
+  "name": "@sh_michael/experimental-ct-react17",
+  "version": "1.56.0",
   "description": "Playwright Component Testing for React",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/microsoft/playwright.git"
+    "url": "git+https://github.com/saffron-health/playwright-new.git"
   },
   "homepage": "https://playwright.dev",
   "engines": {
@@ -30,7 +30,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@playwright/experimental-ct-core": "1.56.0-next",
+    "@sh_michael/experimental-ct-core": "1.56.0",
     "@vitejs/plugin-react": "^4.2.1"
   },
   "bin": {
