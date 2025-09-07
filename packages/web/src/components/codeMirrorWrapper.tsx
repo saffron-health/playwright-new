@@ -45,6 +45,7 @@ export interface SourceProps {
   focusOnChange?: boolean;
   wrapLines?: boolean;
   onChange?: (text: string) => void;
+  onKeyDown?: (key: string, event: KeyboardEvent) => boolean;
   dataTestId?: string;
   placeholder?: string;
 }
@@ -62,6 +63,7 @@ export const CodeMirrorWrapper: React.FC<SourceProps> = ({
   focusOnChange,
   wrapLines,
   onChange,
+  onKeyDown,
   dataTestId,
   placeholder,
 }) => {
@@ -110,10 +112,24 @@ export const CodeMirrorWrapper: React.FC<SourceProps> = ({
       codemirrorRef.current = { cm };
       if (isFocused)
         cm.focus();
+      
+      // Add keydown handler if provided
+      if (onKeyDown) {
+        const wrapper = cm.getWrapperElement();
+        const keydownHandler = (event: KeyboardEvent) => {
+          const handled = onKeyDown(event.key, event);
+          if (handled) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        };
+        wrapper.addEventListener('keydown', keydownHandler);
+      }
+      
       setCodemirror(cm);
       return cm;
     })();
-  }, [modulePromise, codemirror, codemirrorElement, highlighter, mimeType, linkify, lineNumbers, wrapLines, readOnly, isFocused, placeholder]);
+  }, [modulePromise, codemirror, codemirrorElement, highlighter, mimeType, linkify, lineNumbers, wrapLines, readOnly, isFocused, placeholder, onKeyDown]);
 
   React.useEffect(() => {
     if (codemirrorRef.current)

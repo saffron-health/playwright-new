@@ -32,6 +32,8 @@ import yaml from 'yaml';
 import { parseAriaSnapshot } from '@isomorphic/ariaSnapshot';
 import { Dialog } from '@web/components/dialog';
 
+import { ToastContainer, useToast } from './toast';
+
 export interface RecorderProps {
   sources: Source[],
   paused: boolean,
@@ -65,6 +67,64 @@ export const Recorder: React.FC<RecorderProps> = ({
   }, [sources, selectedFileId]);
 
   const [locator, setLocator] = React.useState('');
+  const [executionResult, setExecutionResult] = React.useState<{result: any, type: 'action' | 'extraction', timestamp: number} | null>(null);
+  const { toasts, removeToast, showSuccess, showError, showInfo } = useToast();
+  
+  window.playwrightExtractionResult = (result: any, extraction: string) => {
+    const isExtraction = extraction === 'extraction';
+    const resultType = isExtraction ? 'extraction' : 'action';
+    
+    if (isExtraction) {
+      setExecutionResult({ result, type: 'extraction', timestamp: Date.now() });
+      // Show blue toast for extraction results
+      const truncatedResult = JSON.stringify(result).slice(0, 100);
+      showInfo(`Result: ${truncatedResult}${JSON.stringify(result).length > 100 ? '...' : ''}`);
+    } else {
+      // For actions, we still set the result but won't show a toast (already handled above)
+      setExecutionResult({ result, type: 'action', timestamp: Date.now() });
+    }
+  };
+
+  const runOperation = async () => {
+    if (!locator.trim()) return;
+    
+    // Detect if this is an extraction (returns a value) or action (performs an action)
+    const isExtraction = /\.(innerText|textContent|isVisible|isEnabled|isChecked|getAttribute|count|boundingBox)\s*\(\s*\)?\s*$/.test(locator.trim()) || 
+                         /^page\.(title|url)\s*\(\s*\)?\s*$/.test(locator.trim());
+    
+    // Clear previous result if switching between action and extraction
+    if (executionResult && 
+        ((executionResult.type === 'action' && isExtraction) || 
+         (executionResult.type === 'extraction' && !isExtraction))) {
+      setExecutionResult(null);
+    }
+    
+    // For actions (non-extraction operations), clear the result immediately
+    if (!isExtraction) {
+      setExecutionResult(null);
+    }
+    
+    try {
+      await window.dispatch({
+        event: 'executeArbitraryCode',
+        params: { 
+          code: locator
+        }
+      });
+      
+      // For actions, show a success state briefly
+      if (!isExtraction) {
+        showSuccess('Action executed successfully');
+      }
+      
+    } catch (error) {
+      console.error('Operation failed:', error);
+      showError(`Operation failed: ${error}`);
+      // Clear result on error
+      setExecutionResult(null);
+    }
+  };
+
   window.playwrightElementPicked = (elementInfo: ElementInfo, userGesture?: boolean) => {
     const language = source.language;
     setLocator(asLocator(language, elementInfo.selector));
@@ -224,7 +284,45 @@ export const Recorder: React.FC<RecorderProps> = ({
           {
             id: 'locator',
             title: 'Locator',
-            render: () => <CodeMirrorWrapper text={locator} placeholder='Type locator to inspect' highlighter={source.language} focusOnChange={true} onChange={onEditorChange} wrapLines={true} />
+            render: () => (
+              <div className="locator-tab-container">
+                <div className="locator-editor-container">
+                  <CodeMirrorWrapper 
+                    text={locator} 
+                    placeholder='Type Playwright code to execute' 
+                    highlighter={source.language} 
+                    focusOnChange={true} 
+                    onChange={onEditorChange} 
+                    wrapLines={true}
+                    onKeyDown={(key, event) => {
+                      if (key === 'Enter' && !event.shiftKey) {
+                        runOperation();
+                        return true; // Indicate we handled the event
+                      }
+                      return false; // Let CodeMirror handle the event
+                    }}
+                  />
+                  <div className="action-bar">
+                    <ToolbarButton 
+                      icon='play' 
+                      title='Run Code' 
+                      onClick={runOperation}
+                      disabled={!locator.trim()}
+                    />
+                  </div>
+                </div>
+                {executionResult && (
+                  <div className="execution-result-panel">
+                    <div className="execution-result-header">
+                      Result: 
+                    </div>
+                    <div className="execution-result-value">
+                      {JSON.stringify(executionResult.result, null, 2)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
           },
           {
             id: 'log',
@@ -241,5 +339,6 @@ export const Recorder: React.FC<RecorderProps> = ({
         setSelectedTab={setSelectedTab}
       />}
     />
+    <ToastContainer toasts={toasts} onRemoveToast={removeToast} />
   </div>;
 };
