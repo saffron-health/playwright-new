@@ -102,6 +102,19 @@ it('should support playwright.getBy*', async ({ page }) => {
   expect(await page.evaluate(`playwright.locator('div').filter({ visible: false }).element.innerHTML`)).toContain('two');
 });
 
+it('should support playwright.getByRole chaining and methods', async ({ page }) => {
+  await page.setContent('<a href="#" title="Link to Stagehand">Stagehand</a><a href="#">Other link</a>');
+  
+  // Test that getByRole works with chaining and new methods
+  expect(await page.evaluate(`playwright.getByRole('link', { name: 'Stagehand' }).innerText()`)).toBe('Stagehand');
+  expect(await page.evaluate(`playwright.getByRole('link', { name: 'Stagehand' }).first().innerText()`)).toBe('Stagehand');
+  expect(await page.evaluate(`playwright.getByRole('link', { name: 'Stagehand' }).textContent()`)).toBe('Stagehand');
+  expect(await page.evaluate(`playwright.getByRole('link', { name: 'Stagehand' }).innerHTML()`)).toContain('Stagehand');
+  expect(await page.evaluate(`playwright.getByRole('link', { name: 'Stagehand' }).getAttribute('title')`)).toBe('Link to Stagehand');
+  expect(await page.evaluate(`playwright.getByRole('link', { name: 'Stagehand' }).isVisible()`)).toBe(true);
+  expect(await page.evaluate(`playwright.getByRole('link', { name: 'Stagehand' }).isHidden()`)).toBe(false);
+});
+
 it('expected properties on playwright object', async ({ page }) => {
   expect(await page.evaluate(`Object.keys(playwright)`)).toEqual([
     '$',
