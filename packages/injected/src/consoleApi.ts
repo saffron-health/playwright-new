@@ -65,6 +65,33 @@ class Locator {
     self.nth = (index: number): Locator => self.locator(`nth=${index}`);
     self.and = (locator: Locator): Locator => new Locator(injectedScript, selectorBase + ` >> internal:and=` + JSON.stringify(locator[selectorSymbol]));
     self.or = (locator: Locator): Locator => new Locator(injectedScript, selectorBase + ` >> internal:or=` + JSON.stringify(locator[selectorSymbol]));
+    
+    // Add Playwright locator methods for better inspector experience
+    self.innerText = (): string => {
+      if (!this.element) throw new Error('Element not found');
+      return this.element.innerText;
+    };
+    self.textContent = (): string | null => {
+      if (!this.element) throw new Error('Element not found');
+      return this.element.textContent;
+    };
+    self.innerHTML = (): string => {
+      if (!this.element) throw new Error('Element not found');
+      return this.element.innerHTML;
+    };
+    self.getAttribute = (name: string): string | null => {
+      if (!this.element) throw new Error('Element not found');
+      return this.element.getAttribute(name);
+    };
+    self.isVisible = (): boolean => {
+      if (!this.element) return false;
+      const rect = this.element.getBoundingClientRect();
+      const style = window.getComputedStyle(this.element);
+      return !!(rect.width && rect.height && style.visibility !== 'hidden' && style.display !== 'none');
+    };
+    self.isHidden = (): boolean => {
+      return !self.isVisible();
+    };
   }
 }
 
@@ -104,6 +131,12 @@ export class ConsoleAPI {
     delete this._injectedScript.window.playwright.nth;
     delete this._injectedScript.window.playwright.and;
     delete this._injectedScript.window.playwright.or;
+    delete this._injectedScript.window.playwright.innerText;
+    delete this._injectedScript.window.playwright.textContent;
+    delete this._injectedScript.window.playwright.innerHTML;
+    delete this._injectedScript.window.playwright.getAttribute;
+    delete this._injectedScript.window.playwright.isVisible;
+    delete this._injectedScript.window.playwright.isHidden;
   }
 
   private _querySelector(selector: string, strict: boolean): (Element | undefined) {

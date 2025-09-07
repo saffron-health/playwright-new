@@ -103,7 +103,10 @@ The implementation provides a **Public API Wrapper** that makes familiar Playwri
 **Locator Queries:**
 - `innerText()` - Get visible text content
 - `textContent()` - Get all text content
+- `innerHTML()` - Get element's inner HTML
+- `getAttribute(name)` - Get element attribute value
 - `isVisible()` - Check if element is visible
+- `isHidden()` - Check if element is hidden (opposite of isVisible)
 - `isEnabled()` - Check if element is enabled  
 - `isChecked()` - Check if checkbox/radio is checked
 
@@ -254,7 +257,29 @@ private _createPublicAPIWrapper(page: Page): any {
 
 The locator wrapper (`_createLocatorWrapper`) provides all standard Playwright locator methods (click, fill, innerText, etc.) that internally use frame-level API calls with proper progress controllers and error handling.
 
-### 4.6 `Recorder` class (playwright-core/src/recorder.ts)
+### 4.6 Enhanced Console API (`packages/injected/src/consoleApi.ts`)
+**Locator Method Extensions:**
+The console API has been enhanced to support additional Playwright locator methods for improved inspector experience:
+- `innerText()` - Returns the visible text content of the element
+- `textContent()` - Returns all text content including hidden text  
+- `innerHTML()` - Returns the element's inner HTML content
+- `getAttribute(name)` - Gets the value of a specified attribute
+- `isVisible()` - Checks if element is visible (has dimensions and proper CSS visibility)
+- `isHidden()` - Returns the opposite of `isVisible()` for convenience
+
+**getByRole Enhancement:**
+These methods work seamlessly with all locator creation methods, including `getByRole()`, enabling powerful chaining:
+```typescript
+// Example usage in inspector:
+getByRole('link', { name: 'Stagehand' }).innerText()
+getByRole('button', { name: 'Submit' }).isVisible()
+getByRole('textbox').getAttribute('placeholder')
+```
+
+**Test Coverage:**
+Comprehensive test coverage ensures `getByRole` works with method chaining and all new locator methods in `tests/library/inspector/console-api.spec.ts`.
+
+### 4.7 `Recorder` class (playwright-core/src/recorder.ts)
 **Required Helper Methods** (implemented):
 - `pageAliases()` – returns the Map<Page,string> already maintained for code-gen  
 - `frameForSelector(selector)` – returns the main frame for execution context
@@ -264,7 +289,7 @@ The locator wrapper (`_createLocatorWrapper`) provides all standard Playwright l
 - `_sendExtractionResultToUI(result, extraction)` – sends results to recorder UI page via `window.playwrightExtractionResult()`
 - `_isExtractionCommand(code)` – detects whether code is an extraction or action command using regex patterns
 
-### 4.7 Code Execution Engine
+### 4.8 Code Execution Engine
 **Execution Context Setup:**
 - Creates a **Public API Wrapper** that exposes familiar Playwright methods
 - Makes `locator`, `getByRole`, `getByText`, etc. available as global functions
@@ -273,7 +298,7 @@ The locator wrapper (`_createLocatorWrapper`) provides all standard Playwright l
 **Supported Operations:**
 - **All Playwright locator methods** through the public API wrapper
 - **Actions:** `click()`, `fill()`, `press()` with proper options support
-- **Queries:** `innerText()`, `textContent()`, `isVisible()`, `isEnabled()`, `isChecked()`
+- **Queries:** `innerText()`, `textContent()`, `innerHTML()`, `getAttribute()`, `isVisible()`, `isHidden()`, `isEnabled()`, `isChecked()`
 - **Page methods:** `page.title()`, `page.url()`, `page.goto()`
 
 **Error Handling:**
@@ -281,13 +306,13 @@ The locator wrapper (`_createLocatorWrapper`) provides all standard Playwright l
 - Detailed error messages logged to console for debugging
 - Graceful failure with user-friendly error toasts
 
-### 4.8 Safety & Constraints
+### 4.9 Safety & Constraints
 - **5-second timeout** on all operations (using ProgressController)
 - **No arbitrary JavaScript execution** - only Playwright API methods are exposed
 - **Crash prevention** - errors are caught and handled gracefully
 - **Read-only for generated code** - executed operations don't affect recorded scripts
 
-### 4.9 Telemetry (optional)  
+### 4.10 Telemetry (optional)  
 Emit `recorder:executeArbitraryCode` events with code snippets and outcomes for product analytics.
 
 ## 5. Implementation Summary
@@ -348,8 +373,12 @@ getByPlaceholder('Email').fill('user@example.com')
 **Extractions:**
 ```typescript
 getByText('Welcome').innerText()
+getByRole('link', { name: 'Stagehand' }).textContent()
 locator('.status').isVisible()
+getByRole('button').isHidden()
 page.title()
+locator('#email').getAttribute('placeholder')
+getByRole('main').innerHTML()
 ```
 
 **Complex Expressions:**
