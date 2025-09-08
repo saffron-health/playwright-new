@@ -1,6 +1,6 @@
 {
   "name": "@sh_michael/experimental-ct-react",
-  "version": "1.56.0",
+  "version": "1.56.4",
   "description": "Playwright Component Testing for React",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sh_michael/experimental-ct-core": "1.56.0",
+    "@sh_michael/experimental-ct-core": "1.56.4",
     "@vitejs/plugin-react": "^4.2.1"
   },
   "bin": {

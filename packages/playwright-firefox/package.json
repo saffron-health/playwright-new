@@ -1,6 +1,6 @@
 {
   "name": "@sh_michael/playwright-firefox",
-  "version": "1.56.0",
+  "version": "1.56.4",
   "description": "A high-level API to automate Firefox",
   "repository": {
     "type": "git",
@@ -30,6 +30,6 @@
     "install": "node install.js"
   },
   "dependencies": {
-    "@sh_michael/playwright-core": "1.56.0"
+    "@sh_michael/playwright-core": "1.56.4"
   }
 }
