@@ -9,7 +9,20 @@ To publish all packages under the `@sh_michael` scope with the `latest` tag:
 1. **Increment version**:
 
    ```bash
-   npm version patch    # or 'minor' or 'major' as needed
+   npm run version:patch    # Increments patch version across all packages
+   ```
+
+   This script automatically:
+
+   - Runs `npm version patch` on the root package
+   - Updates all workspace package versions to match
+   - Updates internal dependencies to use the new version
+   - Updates npm overrides in the root package.json
+
+   For manual version control, you can still use:
+
+   ```bash
+   npm version patch    # or 'minor' or 'major' as needed (may not sync all packages)
    ```
 
 2. **Publish all packages to latest**:
