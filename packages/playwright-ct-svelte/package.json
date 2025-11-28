@@ -1,6 +1,6 @@
 {
   "name": "@sh_michael/experimental-ct-svelte",
-  "version": "1.56.4",
+  "version": "1.56.7",
   "description": "Playwright Component Testing for Svelte",
   "repository": {
     "type": "git",
@@ -30,7 +30,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sh_michael/experimental-ct-core": "1.56.4",
+    "@playwright/experimental-ct-core": "npm:@sh_michael/experimental-ct-core@1.56.7",
     "@sveltejs/vite-plugin-svelte": "^5.1.0"
   },
   "devDependencies": {

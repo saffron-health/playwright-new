@@ -1,6 +1,6 @@
 {
   "name": "@sh_michael/browser-chromium",
-  "version": "1.56.4",
+  "version": "1.56.7",
   "description": "Playwright package that automatically installs Chromium",
   "repository": {
     "type": "git",
@@ -27,6 +27,6 @@
     "install": "node install.js"
   },
   "dependencies": {
-    "@sh_michael/playwright-core": "1.56.4"
+    "playwright-core": "npm:@sh_michael/playwright-core@1.56.7"
   }
 }

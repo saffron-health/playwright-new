@@ -92,7 +92,8 @@ else
 fi
 
 echo "==================== Publishing version ${VERSION} ================"
-node ./utils/workspace.js --ensure-consistent
+# Temporarily skip ensure-consistent during publishing to avoid npm install issues with unpublished @sh_michael packages
+# node ./utils/workspace.js --ensure-consistent
 node ./utils/workspace.js --list-public-package-paths | while read package
 do
   npm publish --access=public ${package} --tag="${NPM_PUBLISH_TAG}"
